@@ -35,4 +35,4 @@ Variables which should be set in special cases.
   - role: prometheus-installer
     app_name: prometheus
     rules_dir: "{{ playbook_dir }}/some/directory" ##any .yml file inside this directory will be copied over to the rules directory
-    config_path: "{{ playbook_dir }}/some/directory"
+    config_path: "{{ playbook_dir }}/some/file"
