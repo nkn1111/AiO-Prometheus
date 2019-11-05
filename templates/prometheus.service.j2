@@ -1,0 +1,17 @@
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ app_name }}
+Group={{ app_name }}
+Restart=on-failure
+Type=simple
+ExecStart={{ bin_file }} \
+    --config.file {{ config_dir }}/{{ config_file }} \
+    --storage.tsdb.path {{ config_dir }}/data
+ExecReload=/bin/kill -HUP prometheus
+
+[Install]
+WantedBy=multi-user.target

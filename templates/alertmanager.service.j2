@@ -1,0 +1,17 @@
+[Unit]
+Description=AlertManager Server Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ app_name }}
+Group={{ app_name }}
+Restart=on-failure
+ExecStart={{ bin_file }} \
+    --config.file {{ config_dir }}/{{ config_file }} \
+    --storage.path {{ config_dir }}/data
+ExecReload=/bin/kill -HUP alertmanager
+
+[Install]
+WantedBy=multi-user.target

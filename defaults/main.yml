@@ -1,0 +1,10 @@
+---
+##global var
+bin_file: /usr/local/bin/{{ app_name }}
+git_repo: prometheus ##some of the exporter use a different provider
+config_dir: /etc/{{ app_name }}
+config_file: "{{ app_name }}.yml"
+
+#for AM
+slack_base_url: "https://hooks.slack.com/services/SOMEBASEURL"
+slack_url: "{{ slack_base_url }}/{{ slack_group_path }}"

@@ -1,0 +1,93 @@
+---
+- name: Creating {{ app_name }} group.
+  become: true
+  group:
+    name: "{{ app_name }}"
+
+- name: Creating {{ app_name }} user
+  become: true
+  user:
+    name: "{{ app_name }}"
+    group: "{{ app_name }}"
+    system: yes
+    shell: "/sbin/nologin"
+    comment: "{{ app_name }} nologin User"
+    createhome: "no"
+
+- name: Checking for latest version of {{ app_name }}
+  command: "{{ bin_file }} --version"
+  register: version
+  changed_when: False
+  ignore_errors: True
+
+- name: Downloading {{ app_name }}
+  unarchive:
+    src: "https://github.com/{{ git_repo }}/{{ app_name }}/releases/download/v{{ app_version }}/{{ app_name }}-{{ app_version }}.linux-amd64.tar.gz"
+    dest: /tmp/
+    remote_src: yes
+  when: version.rc != 0 or app_version not in version.stderr_lines[0]
+
+- name: Copying to bin
+  become: true
+  copy:
+    src: "/tmp/{{ app_name }}-{{ app_version }}.linux-amd64/{{ app_name }}"
+    dest: "{{ bin_file }}"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+    remote_src: yes
+    mode: 0755
+  when: version.rc != 0 or app_version not in version.stderr_lines[0]
+  notify: restart {{ app_name }}
+
+- name: Delete {{ app_name }} tmp folder
+  file:
+    path: '/tmp/{{ app_name }}-{{ app_version }}.linux-amd64'
+    state: absent
+
+- name: Create rule directory
+  become: true
+  file:
+    path: "/etc/{{ app_name }}/rules/"
+    state: directory
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+  when: rules_dir is defined
+
+- name: Copying rule files
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/{{ app_name }}/rules/{{ item | basename }}"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+  with_fileglob:
+    - "{{ rules_dir }}/*.yml"
+  notify: reload {{ app_name }}
+  when: rules_dir is defined
+
+- name: Copy config file
+  become: true
+  template:
+    src: "{{ config_path }}"
+    dest: "{{ config_dir }}/{{ config_file }}"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+  notify: reload {{ app_name }}
+  when: config_path is defined
+
+- name: Copy systemd file
+  become: true
+  template:
+    src: "{{ app_name }}.service.j2"
+    dest: "/etc/systemd/system/{{ app_name }}.service"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+  notify: restart {{ app_name }}
+
+- name: Start {{ app_name }} service
+  become: true
+  systemd:
+    daemon_reload: yes
+    name: "{{ app_name }}.service"
+    state: started
+    enabled: yes

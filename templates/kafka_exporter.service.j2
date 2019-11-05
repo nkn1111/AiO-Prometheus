@@ -1,0 +1,14 @@
+[Unit]
+Description=Kafka Exporter
+After=kafka-server
+
+[Service]
+Type=simple
+User={{ app_name }}
+Group={{ app_name }}
+Restart=on-failure
+ExecStart={{ bin_file }} --kafka.server=localhost:9092
+ExecReload=/bin/kill -HUP kafka_exporter
+
+[Install]
+WantedBy=multi-user.target

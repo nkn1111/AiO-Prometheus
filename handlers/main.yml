@@ -1,0 +1,12 @@
+---
+- name: restart {{ app_name }}
+  become: true
+  systemd:
+   state: restarted
+   name: "{{ app_name }}"
+
+- name: reload {{ app_name }}
+  become: true
+  systemd:
+   state: reloaded
+   name: "{{ app_name }}"

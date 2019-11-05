@@ -1,0 +1,14 @@
+[Unit]
+Description=Blackbox Exporter
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_name }}
+Group={{ app_name }}
+Restart=on-failure
+ExecStart={{ bin_file }} --config.file={{ config_dir }}/{{ config_file }}
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
