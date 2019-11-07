@@ -1,7 +1,7 @@
 **All In One - Prometheus**
 =========
 
-A generic module for setting up the exporter(tested on: node_exporter, blackbox_exporter and kafka_exporter) and the Prometheus and AlertManager itself.
+A generic module for setting up the exporter(tested on: node_exporter, blackbox_exporter and kafka_exporter) and the Prometheus and AlertManager itself. Can also be used it any already running Prometheus environment. 
 
 **Requirements**
 ------------
